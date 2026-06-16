@@ -12,14 +12,15 @@
   <header class="app-header">
     <p class="eyebrow">Sinal de campanha</p>
     <h1>Rastreador de Campanhas</h1>
-    <p>Contagem de posts de influenciadores por hashtag e acompanhamento das visualizações totais do seu perfil, num só lugar.</p>
+    <p>Campanhas com orçamento, status de influenciadores e CPM, banco de criadores reutilizável, e visualizações totais do seu perfil — tudo num só lugar.</p>
     <svg class="pulse-line" viewBox="0 0 600 34" preserveAspectRatio="none">
       <path class="pulse-path" d="M0,17 L120,17 L140,4 L160,30 L180,17 L260,17 L280,8 L300,26 L320,17 L600,17"/>
     </svg>
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab-btn" id="tabBtnCampaigns" role="tab" aria-selected="true">Influenciadores</button>
+    <button class="tab-btn" id="tabBtnCampaigns" role="tab" aria-selected="true">Campanhas</button>
+    <button class="tab-btn" id="tabBtnInfluencers" role="tab" aria-selected="false">Influenciadores</button>
     <button class="tab-btn" id="tabBtnViews" role="tab" aria-selected="false">Visualizações da conta</button>
   </nav>
 
@@ -42,7 +43,7 @@
 
       <div class="panel">
         <h2>Campanhas</h2>
-        <p class="hint">Clique numa campanha para ver e adicionar posts.</p>
+        <p class="hint">Clique numa campanha para ver detalhes, influenciadores e posts.</p>
         <div id="campaignList" class="campaign-list">
           <div class="empty-state">Nenhuma campanha ainda. Crie a primeira ao lado.</div>
         </div>
@@ -50,36 +51,143 @@
     </div>
 
     <div id="campaignDetailWrap" style="margin-top:16px; display:none;">
+
       <div class="panel">
         <h2 id="detailTitle">—</h2>
         <p class="hint" id="detailHint"></p>
+      </div>
 
+      <div class="panel">
+        <h2>Planejamento</h2>
+        <p class="hint">Defina orçamento e meta de posts da campanha.</p>
+        <form id="formBudget">
+          <div class="field-row-even">
+            <div>
+              <label for="inputBudget">Orçamento (R$)</label>
+              <input type="number" id="inputBudget" min="0" step="0.01" placeholder="Ex: 5000">
+            </div>
+            <div>
+              <label for="inputGoalPosts">Meta de posts</label>
+              <input type="number" id="inputGoalPosts" min="0" placeholder="Ex: 10">
+            </div>
+          </div>
+          <button class="btn" type="submit">Salvar planejamento</button>
+        </form>
+
+        <div class="stat-grid" style="margin-top:18px;">
+          <div class="stat-card">
+            <div class="label">Progresso de posts</div>
+            <div class="value" id="progressValue">0/0</div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Custo por mil visualizações (CPM)</div>
+            <div class="value" id="cpmValue">—</div>
+            <div class="delta" id="cpmSub"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Influenciadores da campanha</h2>
+        <p class="hint">Recrute do seu banco ou cadastre um novo direto aqui.</p>
+        <form id="formAddCampaignInfluencer">
+          <label for="selectExistingInfluencer">Influenciador do banco</label>
+          <select id="selectExistingInfluencer">
+            <option value="">Selecione...</option>
+          </select>
+          <button class="btn btn-ghost btn-small" type="button" id="btnToggleNewInfluencer" style="margin-top:10px;">+ Novo influenciador</button>
+          <div id="newInfluencerFields" style="display:none; margin-top:12px;">
+            <div class="field-row-even">
+              <div>
+                <label for="inputNewInfName">Nome</label>
+                <input type="text" id="inputNewInfName" placeholder="Ex: Ana Souza">
+              </div>
+              <div>
+                <label for="inputNewInfHandle">@ perfil</label>
+                <input type="text" id="inputNewInfHandle" placeholder="@anasouza">
+              </div>
+            </div>
+          </div>
+          <button class="btn" type="submit" style="display:block;">Adicionar à campanha</button>
+          <p class="error-text" id="errorAddCampaignInfluencer">Selecione um influenciador do banco ou informe um nome novo.</p>
+        </form>
+
+        <table id="campaignInfluencersTable" style="margin-top:18px;">
+          <thead><tr><th>Influenciador</th><th>@ perfil</th><th>Status</th><th></th></tr></thead>
+          <tbody id="campaignInfluencersTableBody"></tbody>
+        </table>
+        <div id="campaignInfluencersEmpty" class="empty-state" style="display:none;">Nenhum influenciador adicionado a essa campanha ainda.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Posts registrados</h2>
         <form id="formPost">
           <div class="layout-grid">
             <div>
-              <label for="inputInfluencer">Influenciador</label>
-              <input type="text" id="inputInfluencer" placeholder="@nomedoperfil" required>
+              <label for="selectPostInfluencer">Influenciador</label>
+              <select id="selectPostInfluencer"><option value="">Selecione...</option></select>
               <label for="inputPostDate">Data do post</label>
               <input type="date" id="inputPostDate" required>
             </div>
             <div>
               <label for="inputPostLink">Link do post</label>
               <input type="url" id="inputPostLink" placeholder="https://instagram.com/p/...">
-              <button class="btn" type="submit" style="width:100%;">Registrar post</button>
+              <label for="inputPostViews">Visualizações (opcional)</label>
+              <input type="number" id="inputPostViews" min="0" placeholder="Ex: 12000">
             </div>
           </div>
-          <p class="error-text" id="errorPost">Preencha o nome do influenciador e a data.</p>
+          <button class="btn" type="submit">Registrar post</button>
+          <p class="error-text" id="errorPost">Selecione o influenciador e a data.</p>
         </form>
 
         <div id="summaryRow" class="summary-row"></div>
 
         <table id="postsTable" style="margin-top:18px;">
           <thead>
-            <tr><th>Influenciador</th><th>Data</th><th>Link</th><th></th></tr>
+            <tr><th>Influenciador</th><th>Data</th><th>Visualizações</th><th>Link</th><th></th></tr>
           </thead>
           <tbody id="postsTableBody"></tbody>
         </table>
         <div id="postsEmpty" class="empty-state" style="display:none;">Nenhum post registrado nessa campanha ainda.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="viewInfluencers">
+    <div class="layout-grid">
+      <div class="panel">
+        <h2>Novo influenciador</h2>
+        <p class="hint">Cadastre uma vez, reaproveite em quantas campanhas quiser.</p>
+        <form id="formInfluencer">
+          <label for="inputInfName">Nome</label>
+          <input type="text" id="inputInfName" placeholder="Ex: Ana Souza" required>
+          <label for="inputInfHandle">@ perfil</label>
+          <input type="text" id="inputInfHandle" placeholder="@anasouza">
+          <div class="field-row-even">
+            <div>
+              <label for="inputInfNiche">Nicho</label>
+              <input type="text" id="inputInfNiche" placeholder="Ex: moda, fitness">
+            </div>
+            <div>
+              <label for="inputInfFollowers">Seguidores</label>
+              <input type="number" id="inputInfFollowers" min="0" placeholder="Ex: 25000">
+            </div>
+          </div>
+          <label for="inputInfContact">Contato</label>
+          <input type="text" id="inputInfContact" placeholder="E-mail ou WhatsApp">
+          <label for="inputInfNotes">Notas</label>
+          <input type="text" id="inputInfNotes" placeholder="Observações internas">
+          <button class="btn" type="submit">Adicionar ao banco</button>
+          <p class="error-text" id="errorInfluencer">Informe pelo menos o nome.</p>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Banco de influenciadores</h2>
+        <p class="hint">Todos os criadores que vocês já trabalharam ou estão de olho.</p>
+        <div id="influencerList" class="campaign-list">
+          <div class="empty-state">Nenhum influenciador cadastrado ainda.</div>
+        </div>
       </div>
     </div>
   </section>
