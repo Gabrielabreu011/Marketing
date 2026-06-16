@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rastreador de Campanhas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="app-header">
+    <p class="eyebrow">Sinal de campanha</p>
+    <h1>Rastreador de Campanhas</h1>
+    <p>Contagem de posts de influenciadores por hashtag e acompanhamento das visualizações totais do seu perfil, num só lugar.</p>
+    <svg class="pulse-line" viewBox="0 0 600 34" preserveAspectRatio="none">
+      <path class="pulse-path" d="M0,17 L120,17 L140,4 L160,30 L180,17 L260,17 L280,8 L300,26 L320,17 L600,17"/>
+    </svg>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn" id="tabBtnCampaigns" role="tab" aria-selected="true">Influenciadores</button>
+    <button class="tab-btn" id="tabBtnViews" role="tab" aria-selected="false">Visualizações da conta</button>
+  </nav>
+
+  <div id="loadingState" class="loading">Carregando dados salvos…</div>
+
+  <section class="view active" id="viewCampaigns">
+    <div class="layout-grid">
+      <div class="panel">
+        <h2>Nova campanha</h2>
+        <p class="hint">Crie uma campanha para agrupar os posts por hashtag.</p>
+        <form id="formCampaign">
+          <label for="inputCampaignName">Nome da campanha</label>
+          <input type="text" id="inputCampaignName" placeholder="Ex: Lançamento Verão" required>
+          <label for="inputCampaignTag">Hashtag</label>
+          <input type="text" id="inputCampaignTag" placeholder="Ex: #marcaverao26" required>
+          <button class="btn" type="submit">Adicionar campanha</button>
+          <p class="error-text" id="errorCampaign">Preencha o nome e a hashtag.</p>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Campanhas</h2>
+        <p class="hint">Clique numa campanha para ver e adicionar posts.</p>
+        <div id="campaignList" class="campaign-list">
+          <div class="empty-state">Nenhuma campanha ainda. Crie a primeira ao lado.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="campaignDetailWrap" style="margin-top:16px; display:none;">
+      <div class="panel">
+        <h2 id="detailTitle">—</h2>
+        <p class="hint" id="detailHint"></p>
+
+        <form id="formPost">
+          <div class="layout-grid">
+            <div>
+              <label for="inputInfluencer">Influenciador</label>
+              <input type="text" id="inputInfluencer" placeholder="@nomedoperfil" required>
+              <label for="inputPostDate">Data do post</label>
+              <input type="date" id="inputPostDate" required>
+            </div>
+            <div>
+              <label for="inputPostLink">Link do post</label>
+              <input type="url" id="inputPostLink" placeholder="https://instagram.com/p/...">
+              <button class="btn" type="submit" style="width:100%;">Registrar post</button>
+            </div>
+          </div>
+          <p class="error-text" id="errorPost">Preencha o nome do influenciador e a data.</p>
+        </form>
+
+        <div id="summaryRow" class="summary-row"></div>
+
+        <table id="postsTable" style="margin-top:18px;">
+          <thead>
+            <tr><th>Influenciador</th><th>Data</th><th>Link</th><th></th></tr>
+          </thead>
+          <tbody id="postsTableBody"></tbody>
+        </table>
+        <div id="postsEmpty" class="empty-state" style="display:none;">Nenhum post registrado nessa campanha ainda.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="viewViews">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Última leitura</div>
+        <div class="value" id="latestViewsValue">—</div>
+        <div class="delta" id="latestViewsDelta"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Crescimento desde o início</div>
+        <div class="value" id="totalGrowthValue">—</div>
+        <div class="delta" id="totalGrowthSub"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h2>Visualizações ao longo do tempo</h2>
+      <p class="hint">Pegue o número em Instagram → Insights → Visualizações da conta, e registre aqui periodicamente.</p>
+      <div class="sparkline-wrap" id="sparklineWrap"></div>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h2>Registrar leitura</h2>
+      <form id="formSnapshot">
+        <div class="layout-grid">
+          <div>
+            <label for="inputSnapshotDate">Data</label>
+            <input type="date" id="inputSnapshotDate" required>
+            <label for="inputSnapshotViews">Visualizações da conta (total)</label>
+            <input type="number" id="inputSnapshotViews" min="0" placeholder="Ex: 48200" required>
+          </div>
+          <div>
+            <label for="inputSnapshotNote">Observação (opcional)</label>
+            <input type="text" id="inputSnapshotNote" placeholder="Ex: pós-campanha verão">
+            <button class="btn" type="submit" style="width:100%;">Salvar leitura</button>
+          </div>
+        </div>
+        <p class="error-text" id="errorSnapshot">Informe a data e o número de visualizações.</p>
+      </form>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h2>Histórico</h2>
+      <table id="snapshotsTable">
+        <thead><tr><th>Data</th><th>Visualizações</th><th>Variação</th><th>Observação</th><th></th></tr></thead>
+        <tbody id="snapshotsTableBody"></tbody>
+      </table>
+      <div id="snapshotsEmpty" class="empty-state" style="display:none;">Nenhuma leitura registrada ainda.</div>
+    </div>
+  </section>
+
+  <p class="data-note"><span class="dot"></span> Os dados deste painel são compartilhados: qualquer pessoa que abrir esta página vê e edita as mesmas informações.</p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
